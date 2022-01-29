@@ -9,12 +9,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5v
 const SUPABASE_URL = 'https://xrxzuvdwblsngjdaqofb.supabase.co'
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-// function updateMensagens(ad) {
-//     return supabaseClient.from('mensagens').on('INSERT', ({ addMensagem }) => {
-//         adicionaMensagem(addMensagem.new);
-//     })
-//     .subscribe();
-// }
+function updateMensagens(adicionarMensagem) {
+    return supabaseClient.from('mensagens').on('INSERT', (addMensagem) => {
+        adicionarMensagem(addMensagem.new);
+    })
+        .subscribe();
+}
 
 export default function ChatPage() {
     const [mensagem, setMensagem] = React.useState('');
@@ -25,15 +25,21 @@ export default function ChatPage() {
 
     React.useEffect(() => {
         supabaseClient
-        .from('mensagens')
-        .select('*')
-        .order('id', {ascending: false})
-        .then( ({data}) => {
-            setListaDeMensagens(data)
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                setListaDeMensagens(data)
+            });
+        updateMensagens((novaMensagem) => {
+            console.log('Nova mensagem adicionada: ', novaMensagem);
+            setListaDeMensagens((listaAtual) => {
+                return [
+                    novaMensagem,
+                    ...listaAtual,
+                ]
+            });
         });
-        // updateMensagens((novaMensagem) => {
-        //     handleNovaMensagem(novaMensagem);
-        // });
     }, []);
 
     function handleNovaMensagem(novaMensagem) {
@@ -47,12 +53,12 @@ export default function ChatPage() {
             .insert([
                 mensagem
             ])
-            .then(( {data} ) => {
-                // console.log('Criando mensagem: ')
-                setListaDeMensagens([
-                    data[0],
-                    ...listaDeMensagens,
-                ]);
+            .then(({ data }) => {
+                console.log('Criando mensagem: ', data)
+                // setListaDeMensagens([
+                //     data[0],
+                //     ...listaDeMensagens,
+                // ]);
             })
 
         setMensagem('');
@@ -129,7 +135,7 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals['02'],
                             }}
                         />
-                        <ButtonSendSticker 
+                        <ButtonSendSticker
                             onStickerClick={(sticker) => {
                                 // console.log('Salva sticker de dados');
                                 handleNovaMensagem(`:sticker: ${sticker}`)
@@ -219,12 +225,12 @@ function MessageList(props) {
                             </Text>
                         </Box>
                         {/* {mensagem.texto.startsWith(':sticker:').toString()} */}
-                        {mensagem.texto.startsWith(':sticker:') 
-                        ? (
-                            <Image src = {mensagem.texto.replace(':sticker:', '')} />
-                        ) 
-                        : (mensagem.texto)
-                    }
+                        {mensagem.texto.startsWith(':sticker:')
+                            ? (
+                                <Image src={mensagem.texto.replace(':sticker:', '')} />
+                            )
+                            : (mensagem.texto)
+                        }
                     </Text>
                 );
             })}
