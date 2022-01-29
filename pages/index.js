@@ -22,7 +22,6 @@ function Titulo(props) {
 export default function PaginaInicial() {
   const [username, setUsername] = React.useState('abasilio91');
   const roteamento = useRouter();
-  // const [buttonDisabled, setButtonDisabled] = React.useState('True');
 
   return (
     <>  
@@ -54,7 +53,7 @@ export default function PaginaInicial() {
             as="form"
             onSubmit={function (event) {
               event.preventDefault();
-              roteamento.push('/chat');
+              roteamento.push(`/chat?username=${username}`);
             }}
             styleSheet={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
